@@ -1,50 +1,43 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.title("WebUSB LED Control")
-
-components.html("""
+html_code = """
 <!DOCTYPE html>
 <html>
-<body>
-  <button onclick="connectDevice()">Connect to Arduino</button>
-  <button onclick="sendCommand('ON')">Turn LED On</button>
-  <button onclick="sendCommand('OFF')">Turn LED Off</button>
-  <p id="status">Status: Disconnected</p>
+  <head>
+    <title>WebUSB LED Control</title>
+    <script>
+      let device;
 
-  <script>
-    let device;
-
-    async function connectDevice() {
-      try {
-        device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0f0d }] });
-        await device.open();
-        await device.selectConfiguration(1);
-        await device.claimInterface(0);
-        document.getElementById('status').innerText = "Status: Connected";
-      } catch (error) {
-        console.log(error);
-        document.getElementById('status').innerText = "Status: Error connecting to device";
-      }
-    }
-
-    async function sendCommand(command) {
-      if (!device) {
-        alert("Device not connected");
-        return;
+      async function connect() {
+        try {
+          device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0f0d }] });
+          await device.open();
+          await device.selectConfiguration(1);
+          await device.claimInterface(1);  // インターフェイス番号0を使用
+          console.log('Connected to device');
+        } catch (error) {
+          console.log('There was an error: ' + error);
+        }
       }
 
-      const encoder = new TextEncoder();
-      const data = encoder.encode(command + "\n");
-
-      try {
-        await device.transferOut(2, data);
-        console.log("Sent: " + command);
-      } catch (error) {
-        console.log(error);
+      async function toggleLED(state) {
+        try {
+          const data = new Uint8Array([state]);
+          await device.transferOut(4, data);  // エンドポイント4を使用
+          console.log('LED state set to ' + state);
+        } catch (error) {
+          console.log('There was an error: ' + error);
+        }
       }
-    }
-  </script>
-</body>
+    </script>
+  </head>
+  <body>
+    <button onclick="connect()">Connect</button>
+    <button onclick="toggleLED(1)">Turn LED ON</button>
+    <button onclick="toggleLED(0)">Turn LED OFF</button>
+  </body>
 </html>
-""", height=300)
+"""
+
+components.html(html_code)
