@@ -1,53 +1,41 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.title("Arduino LED Control via WebUSB")
-
-# Embed the HTML and JavaScript for WebUSB
 html_code = """
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebUSB Arduino LED Control</title>
-  </head>
-  <body>
-    <h1>WebUSB Arduino LED Control</h1>
-    <button id="connectButton">Connect to Arduino</button>
-    <button id="ledOnButton">Turn LED On</button>
-    <button id="ledOffButton">Turn LED Off</button>
+    <title>WebUSB LED Control</title>
     <script>
       let device;
 
-      document.getElementById('connectButton').addEventListener('click', async () => {
+      async function connect() {
         try {
           device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x2341 }] });
           await device.open();
           await device.selectConfiguration(1);
-          await device.claimInterface(2);
-          console.log('Connected to Arduino');
+          await device.claimInterface(0);  // インターフェイス番号0を使用
+          console.log('Connected to device');
         } catch (error) {
-          console.error('There was an error:', error);
+          console.log('There was an error: ' + error);
         }
-      });
+      }
 
-      document.getElementById('ledOnButton').addEventListener('click', async () => {
-        if (device) {
-          const encoder = new TextEncoder();
-          const data = encoder.encode('1');
-          await device.transferOut(4, data);
-          console.log('LED On');
+      async function toggleLED(state) {
+        try {
+          const data = new Uint8Array([state]);
+          await device.transferOut(4, data);  // エンドポイント4を使用
+          console.log('LED state set to ' + state);
+        } catch (error) {
+          console.log('There was an error: ' + error);
         }
-      });
-
-      document.getElementById('ledOffButton').addEventListener('click', async () => {
-        if (device) {
-          const encoder = new TextEncoder();
-          const data = encoder.encode('0');
-          await device.transferOut(4, data);
-          console.log('LED Off');
-        }
-      });
+      }
     </script>
+  </head>
+  <body>
+    <button onclick="connect()">Connect</button>
+    <button onclick="toggleLED(1)">Turn LED ON</button>
+    <button onclick="toggleLED(0)">Turn LED OFF</button>
   </body>
 </html>
 """
