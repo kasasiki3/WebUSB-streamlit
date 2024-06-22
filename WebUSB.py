@@ -3,16 +3,6 @@ import streamlit.components.v1 as components
 
 st.title("Arduino LED Control via WebUSB")
 
-document.querySelector('button').addEventListener('click', function() {
-  navigator.usb.getDevices().then(devices => {
-    console.log('デバイスが見つかりました:', devices);
-    devices.forEach(device => {
-      console.log(`製品名: ${device.productName}`);
-    });
-  });
-});
-
-
 # Embed the HTML and JavaScript for WebUSB
 html_code = """
 <!DOCTYPE html>
