@@ -14,7 +14,7 @@ html_code = """
           device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0f0d }] });
           await device.open();
           await device.selectConfiguration(1);
-          await device.claimInterface(0);  // インターフェイス番号0を使用
+          await device.claimInterface(1);  // インターフェイス番号0を使用
           console.log('Connected to device');
         } catch (error) {
           console.log('There was an error: ' + error);
