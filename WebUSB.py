@@ -11,7 +11,7 @@ html_code = """
 
       async function connect() {
         try {
-          device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x2341 }] });
+          device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0f0d }] });
           await device.open();
           await device.selectConfiguration(1);
           await device.claimInterface(0);  // インターフェイス番号0を使用
